@@ -39,21 +39,29 @@ public class AuthManager : MonoBehaviour
     // --- PANEL NAVIGATION ---
     public void ShowLoginPanel()
     {
-        loginPanel.SetActive(true);
-        registerPanel.SetActive(false);
+        if (loginPanel != null) loginPanel.SetActive(true);
+        if (registerPanel != null) registerPanel.SetActive(false);
         ClearFields();
     }
 
     public void ShowRegisterPanel()
     {
-        loginPanel.SetActive(false);
-        registerPanel.SetActive(true);
+        if (loginPanel != null) loginPanel.SetActive(false);
+        if (registerPanel != null) registerPanel.SetActive(true);
         ClearFields();
     }
 
     // --- REGISTER ACCOUNT ---
     public void RegisterAccount()
     {
+        // Safety check for unassigned Inspector references
+        if (registerUsernameInput == null || registerPasswordInput == null ||
+            registerConfirmPasswordInput == null || registerMessageText == null)
+        {
+            Debug.LogError("One or more Register UI references are not assigned in the Inspector!", this);
+            return;
+        }
+
         string username = registerUsernameInput.text.Trim();
         string password = registerPasswordInput.text;
         string confirmPassword = registerConfirmPasswordInput.text;
@@ -79,7 +87,8 @@ public class AuthManager : MonoBehaviour
         {
             if (task.IsCanceled || task.IsFaulted)
             {
-                registerMessageText.text = "Registration failed. Username may already exist!";
+                if (registerMessageText != null)
+                    registerMessageText.text = "Registration failed. Username may already exist!";
                 return;
             }
 
@@ -97,11 +106,13 @@ public class AuthManager : MonoBehaviour
             {
                 if (dbTask.IsFaulted)
                 {
-                    registerMessageText.text = "Account created, but database setup failed.";
+                    if (registerMessageText != null)
+                        registerMessageText.text = "Account created, but database setup failed.";
                     return;
                 }
 
-                registerMessageText.text = "Registration successful!";
+                if (registerMessageText != null)
+                    registerMessageText.text = "Registration successful!";
 
                 // Switch back to Login panel after successful registration
                 Invoke(nameof(ShowLoginPanel), 1.5f);
@@ -112,6 +123,13 @@ public class AuthManager : MonoBehaviour
     // --- LOGIN ACCOUNT ---
     public void LoginAccount()
     {
+        // Safety check for unassigned Inspector references
+        if (loginUsernameInput == null || loginPasswordInput == null || loginMessageText == null)
+        {
+            Debug.LogError("One or more Login UI references are not assigned in the Inspector!", this);
+            return;
+        }
+
         string username = loginUsernameInput.text.Trim();
         string password = loginPasswordInput.text;
 
@@ -130,11 +148,13 @@ public class AuthManager : MonoBehaviour
         {
             if (task.IsCanceled || task.IsFaulted)
             {
-                loginMessageText.text = "Incorrect username or password!";
+                if (loginMessageText != null)
+                    loginMessageText.text = "Incorrect username or password!";
                 return;
             }
 
-            loginMessageText.text = "Login Successful! Loading...";
+            if (loginMessageText != null)
+                loginMessageText.text = "Login Successful! Loading...";
 
             // Proceed to MainMenu scene
             SceneManager.LoadScene("MainMenu");

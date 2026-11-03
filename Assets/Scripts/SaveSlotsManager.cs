@@ -106,6 +106,13 @@ public class SaveSlotsManager : MonoBehaviour
 
         docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
         {
+            if (task.IsFaulted)
+            {
+                if (statusText != null)
+                    statusText.text = "Error connecting to database.";
+                return;
+            }
+
             if (!task.Result.Exists || task.Result.ConvertTo<SaveSlotData>().slotMetaData.isSlotEmpty)
             {
                 // Create Initial Save Slot
@@ -116,7 +123,8 @@ public class SaveSlotsManager : MonoBehaviour
                 if (statusText != null)
                     statusText.text = $"Loading {slotId}...";
 
-                // Load your main gameplay scene here (e.g. SceneManager.LoadScene("GameplayZone"));
+                // Load main gameplay scene
+                SceneManager.LoadScene("GameStart");
             }
         });
     }
@@ -166,7 +174,8 @@ public class SaveSlotsManager : MonoBehaviour
                 if (statusText != null)
                     statusText.text = "Save created! Starting game...";
 
-                // Load your main gameplay scene here
+                // Load main gameplay scene
+                SceneManager.LoadScene("GameStart");
             });
     }
 
@@ -187,6 +196,7 @@ public class SaveSlotsManager : MonoBehaviour
                 LoadAllSlots();
             });
     }
+
     // Call when clicking the Back Button
     public void OnClickBack()
     {
